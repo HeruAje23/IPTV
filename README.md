@@ -1,4 +1,4 @@
-# tvdigital id HTTP ONLY (no ssl error for old IPTV)
+# IPTV
 m3u for IPTV indonesia
 
 Usage:
