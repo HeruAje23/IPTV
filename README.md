@@ -5,4 +5,4 @@ Usage:
 Download the file or directly paste this link to iptv player
 
 
-https://heruaje23.github.io/IPTV/IPTVHeruNew.m3u
+https://heruaje23.github.io/IPTV/"THIS PLAYLIST NAME"
