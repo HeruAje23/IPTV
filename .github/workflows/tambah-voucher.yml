@@ -1,0 +1,47 @@
+name: Tambah Voucher Otomatis
+on:
+  repository_dispatch:
+    types: [tambah_kode]
+
+jobs:
+  simpan_voucher:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Ambil data kode & durasi
+        id: data
+        run: |
+          echo "KODE=${{ github.event.client_payload.kode }}" >> $GITHUB_OUTPUT
+          echo "HARI=${{ github.event.client_payload.hari }}" >> $GITHUB_OUTPUT
+
+      - name: Ambil isi repo
+        uses: actions/checkout@v4
+
+      - name: Pasang jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Tambah kode baru ke JSON
+        run: |
+          FILE="VOUCHER/daftar-voucher.json"
+          KODE="${{ steps.data.outputs.KODE }}"
+          HARI="${{ steps.data.outputs.HARI }}"
+
+          # Cek kode duplikat
+          if jq -e "has(\"$KODE\")" "$FILE" > /dev/null; then
+            echo "Kode sudah ada, batalkan"
+            exit 1
+          fi
+
+          # Tambah data baru
+          jq --arg k "$KODE" --argjson h "$HARI" \
+            '. + {($k): {"jenis":"durasi", "hari":$h}}' \
+            "$FILE" > tmp.json && mv tmp.json "$FILE"
+
+      - name: Simpan perubahan
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Tambah voucher ${{ steps.data.outputs.KODE }}"
+          file_pattern: VOUCHER/daftar-voucher.json
+          github_token: ${{ secrets.TOKEN_AKSES }}
+          
